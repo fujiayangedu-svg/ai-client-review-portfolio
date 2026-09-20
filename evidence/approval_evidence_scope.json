@@ -1,0 +1,24 @@
+{
+  "status": "CURRENT_VERSION_APPROVAL_CONFIRMED_BY_USER_SUPPLIED_UI",
+  "account_id": "C002",
+  "client_name": "Beacon Health",
+  "draft_version": 1,
+  "version_token": "GEN-98-C002-V1",
+  "token_source": "Pre-approval form screenshot and previously supplied current queue.",
+  "confirmation_text": [
+    "Approval recorded",
+    "Beacon Health - version 1",
+    "Ready for manual sending",
+    "Only this current version was approved.",
+    "No client email was sent."
+  ],
+  "approval_execution_id": null,
+  "approval_audit_row_id": null,
+  "save_applied_decision_json_supplied": false,
+  "evidence_files": [
+    "C002_approval_confirmation.png"
+  ],
+  "scope": "Paired display and confirmation screenshots show approval of this current portfolio draft. No new approval execution ID, raw saved review audit, or post-approval full-queue snapshot was supplied. Do not reuse execution 10 from the separate four-account prototype.",
+  "client_email_sent": false,
+  "repository_note": "The displayed-version source screenshot was inspected but is omitted here because it includes an unrelated desktop notification. The confirmation image and pre-approval queue are included. Raw approval-node audit JSON was not supplied."
+}

@@ -1,0 +1,35 @@
+﻿account_id,review_date,delivery_status,project_name,recent_milestone,milestone_date,delivery_note
+C001,2026-08-31,on_track,Inventory Dashboard,Inventory dashboard rollout completed,2026-08-26,The agreed August deliverables were completed.
+C002,2026-08-31,on_track,Reporting Portal,Phase 1 reporting portal made available,2026-08-20,Portal delivered; requested export column order is still being reviewed.
+C003,2026-08-31,blocked,Reconciliation Integration,Integration checkpoint missed,2026-08-15,API authentication has blocked integration since 14 August; a recovery date is not confirmed.
+C004,2026-08-31,on_track,Staff Training,Training materials delivered,2026-08-25,Training materials delivered for the next staff session.
+C005,2026-08-31,on_track,Dispatch Dashboard,Dispatch filters released,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C006,2026-08-31,on_track,Course Portal,Course search released,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C007,2026-08-31,on_track,Asset Library,Brand assets migrated,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C008,2026-08-31,on_track,Order Tracker,Order status view released,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C009,2026-08-31,on_track,Booking Dashboard,Booking filters delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C010,2026-08-31,on_track,Membership Portal,Member search enabled,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C011,2026-08-31,on_track,Service Dashboard,Service report delivered,2026-08-31,The stated milestone was delivered; no delivery issue is recorded.
+C012,2026-08-31,on_track,Campaign Workspace,Campaign templates delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C013,2026-08-31,on_track,Equipment Register,Equipment register imported,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C014,2026-08-31,on_track,Document Portal,Document search delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C015,2026-08-31,on_track,Fleet Dashboard,Fleet summary delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C016,2026-08-31,on_track,Learner Portal,Attendance view enabled,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C017,2026-08-31,on_track,Event Workspace,Registration filters delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C018,2026-08-31,on_track,Supplier Dashboard,Supplier search delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C019,2026-08-31,on_track,Project Workspace,Project view delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C020,2026-08-31,on_track,Repairs Dashboard,Repairs summary delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C021,2026-08-31,on_track,Coaching Portal,Session search delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C022,2026-08-31,on_track,Editorial Workspace,Editorial status view enabled,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C023,2026-08-31,on_track,Quality Dashboard,Quality filters delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C024,2026-08-31,at_risk,Visitor Portal,Visitor summary delivered,2026-08-25,The remaining accessibility review may delay the next release; no revised delivery date is agreed.
+C025,2026-08-31,on_track,Support Workspace,Ticket search delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C026,2026-08-31,on_track,Study Workspace,Study index delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C027,2026-08-31,on_track,Stock Dashboard,Stock summary delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C028,2026-08-31,on_track,Release Workspace,Release view delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C029,2026-08-31,on_track,Case Workspace,Case filters delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C030,2026-08-31,on_track,Reporting Workspace,Report search delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C031,2026-08-31,on_track,Volunteer Portal,Volunteer directory delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C032,2026-08-31,on_track,Training Workspace,Training catalogue delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C033,2026-08-31,on_track,Asset Dashboard,Asset filters delivered,2026-08-25,The stated milestone was delivered; no delivery issue is recorded.
+C034,2026-08-31,blocked,Delivery Workspace,Delivery checkpoint reviewed,2026-08-25,An unresolved dependency blocks the next delivery; no recovery date has been agreed.

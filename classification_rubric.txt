@@ -1,0 +1,9 @@
+Provisional rubric v1. Assess dates as of each account's review_date.
+Apply these rules in order:
+1. Review Pending if health_score is null, health_updated_date is null, or health_updated_date is before the first day of the review month. Still set urgent_flag true if any Red signal is present.
+2. Red if health_score is 1 or 2; interactions_count is zero; last interaction is at least 30 days ago; an open issue has high or critical severity; oldest open issue is at least 14 days old; or delivery_status is blocked.
+3. Amber if health_score is 3; interactions_count is 1 or 2; last interaction is 14–29 days ago; any issue is open; renewal is within 60 days (inclusive) or overdue; or delivery_status is at_risk.
+4. Green otherwise.
+Set urgent_flag true exactly when any Red signal is present. Classification is separate from human approval.
+
+Provisional demonstration policy. Expected labels in demo_fixture.json are test targets, not observed AI outputs.

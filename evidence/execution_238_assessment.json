@@ -1,0 +1,31 @@
+{
+  "execution_id": "238",
+  "run_id": "RESUME-01-B03",
+  "response_id": "resp_002ac88399dfb4a6006aae4895b58887d19a713c8205f56dc3",
+  "model": "gpt-5.4-mini-2026-03-17",
+  "scope": "Eight actual model outputs in the failed pre-FIX03 batch; this is not a 34-account score.",
+  "classification": {
+    "correct": 7,
+    "total": 8,
+    "incorrect_account": "C017",
+    "expected": "Amber",
+    "observed": "Green"
+  },
+  "urgent_flags": {
+    "correct": 8,
+    "total": 8
+  },
+  "failure_handling": {
+    "event_type": "RUN_FAILED",
+    "recorded_audit_row": 37,
+    "run_id_matched": true,
+    "context_resolution": "explicit_main_output",
+    "lookup_diagnostics": [],
+    "cleanup_count": 8,
+    "all_marked_processing_failed": true,
+    "all_not_ready": true,
+    "observed_status": "PASS for this model-output validation failure; other failure modes are not implied"
+  },
+  "design_change": "FIX03 provides deterministic policy decisions to the model for explanation and drafting; subsequent agreement is not independent classification accuracy.",
+  "fix03_runtime_verified": false
+}

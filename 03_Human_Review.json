@@ -1,0 +1,1576 @@
+{
+  "name": "Client Review Portfolio - 03 Human review",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "n8nUserAuth",
+        "requireExecuteAccess": true,
+        "formTitle": "Client review portfolio",
+        "formDescription": "34 fictional accounts. Review a saved version or inspect approved drafts. This demonstration sends no messages.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Open",
+              "fieldName": "view",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Review an account"
+                  },
+                  {
+                    "option": "Ready for manual sending"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "onReceived",
+        "options": {
+          "path": "client-review-portfolio-34",
+          "buttonLabel": "Open",
+          "includeUserInOutput": true,
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fca4a216-4962-4a77-8961-423b29884110",
+      "name": "Authenticated review form"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7190b18b-9dfa-4d0f-b602-01a87aa4cc3a",
+              "name": "allowed_reviewer_email",
+              "value": "ENTER_YOUR_N8N_SIGNIN_EMAIL",
+              "type": "string"
+            },
+            {
+              "id": "b1596f54-8d95-4bb0-997e-e260ebd5a0df",
+              "name": "storage_config",
+              "value": "{\"crm_table_id\":\"PASTE_SETUP_CONFIG\",\"delivery_table_id\":\"PASTE_SETUP_CONFIG\",\"review_queue_table_id\":\"PASTE_SETUP_CONFIG\",\"audit_table_id\":\"PASTE_SETUP_CONFIG\",\"expected_account_count\":34,\"batch_size\":8,\"fixture_version\":\"portfolio-34-v1\"}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ],
+      "id": "a2e7cd41-b1fb-417c-b49d-45103894cc5f",
+      "name": "Reviewer settings"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function reviewerIdentity(user, allowedEmail) {\n  if(!allowedEmail || allowedEmail.includes('ENTER_')) throw new Error('REVIEW_CONFIGURATION: enter your n8n sign-in email in Reviewer settings');\n  if(!user || typeof user.id!=='string' || !user.id || typeof user.email!=='string') throw new Error('REVIEW_AUTH: authenticated n8n user identity is missing');\n  if(user.email.trim().toLowerCase()!==allowedEmail.trim().toLowerCase()) throw new Error('REVIEW_AUTH: this account is not the configured test reviewer');\n  return {id:user.id,email:user.email,name:[user.firstName,user.lastName].filter(Boolean).join(' ')||user.email};\n}\nconst data=$input.first().json;const reviewer=reviewerIdentity(data.user,data.allowed_reviewer_email);if(!['Review an account','Ready for manual sending'].includes(data.view))throw new Error('REVIEW_INPUT: invalid view');return [{json:{reviewer,allowed_reviewer_email:data.allowed_reviewer_email,view:data.view}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "id": "9894cef5-bea6-42be-94ba-bce920f52213",
+      "name": "Verify reviewer",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ JSON.parse($('Reviewer settings').first().json.storage_config).review_queue_table_id }}"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        0
+      ],
+      "id": "25973a3b-9c97-47d5-ab5e-01f5d574d282",
+      "name": "Read review queue",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function htmlEscape(value) {\n  return String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\"','&quot;').replaceAll(\"'\",'&#39;');\n}\nfunction reviewDraftHtml(row) {\n  const e=htmlEscape;\n  const a=JSON.parse(row.source_json);\n  const facts=[['Account manager',a.account_manager],['Manager',a.manager_name],['Contact',a.client_contact],['Assessment date',a.review_date],['Interactions',a.interactions_count],['Last interaction',a.last_interaction_date+' — '+a.last_interaction_type],['Health score',a.health_score??'Missing'],['Health updated',a.health_updated_date??'Missing'],['Open issues',a.open_issue_count+'; '+a.issue_summary],['Oldest issue (days)',a.oldest_open_issue_days],['Renewal date',a.renewal_date],['Delivery',a.delivery_status+'; '+a.delivery_note],['Milestone',a.recent_milestone+' ('+a.milestone_date+')'],['Relationship context',a.relationship_note]];\n  return '<h2>'+e(row.client_name)+'</h2><p><b>Account:</b> '+e(row.account_id)+' · <b>Version:</b> '+e(row.draft_version)+'<br><b>Version reference:</b> '+e(row.version_token)+'<br><b>Risk:</b> '+e(row.risk_class)+'<br><b>Approval:</b> '+e(row.approval_status)+'</p><p>'+e(row.reason)+'</p><h3>'+e(row.draft_subject||'Classification only')+'</h3><p>'+e(row.draft_text||'No outreach is proposed.').replaceAll('\\n','<br>')+'</p><h3>Source facts</h3><table>'+facts.map(([k,v])=>'<tr><th>'+e(k)+'</th><td>'+e(v)+'</td></tr>').join('')+'</table>';\n}\nfunction isReady(row) {\n  return row.approval_status==='Approved' && row.delivery_status==='Ready for manual sending' && Boolean(row.version_token) && Number(row.draft_version)>0 && ['amber_email','red_plan','health_update'].includes(row.draft_kind) && Boolean(row.draft_text) && Boolean(row.reviewer_id) && Boolean(row.reviewed_at);\n}\nconst rows=$input.all().map(i=>i.json).filter(r=>Object.keys(r).length>0);const expected=Number(JSON.parse($('Reviewer settings').first().json.storage_config).expected_account_count);if(rows.length!==expected||new Set(rows.map(r=>r.account_id)).size!==expected)throw new Error('QUEUE_VALIDATION: expected '+expected+' unique current accounts');rows.sort((a,b)=>a.account_id.localeCompare(b.account_id));\nconst request=$('Verify reviewer').first().json;const e=htmlEscape;\nconst summary='<p><b>'+rows.length+' accounts</b> | '+['Green','Amber','Red','Review Pending'].map(k=>e(k)+': '+rows.filter(r=>r.risk_class===k).length).join(' | ')+'</p><p>Awaiting review: '+rows.filter(r=>r.approval_status==='Awaiting review').length+' | Approved: '+rows.filter(r=>r.approval_status==='Approved').length+' | Processing failed: '+rows.filter(r=>r.approval_status==='Processing failed').length+'</p>';\nconst table=summary+'<table><tr><th>Account</th><th>Risk</th><th>Version</th><th>Approval</th></tr>'+rows.map(r=>'<tr><td>'+e(r.account_id+' — '+r.client_name)+'</td><td>'+e(r.risk_class||'Not yet classified')+'</td><td>'+e(r.draft_version||'—')+'</td><td>'+e(r.approval_status||'Not processed')+'</td></tr>').join('')+'</table>';\nconst pending=rows.filter(r=>r.approval_status==='Awaiting review'&&r.version_token);const ready=rows.filter(isReady);\nif(request.view==='Ready for manual sending'){const html='<p>Current approved versions at the time this page was opened. This page does not send anything.</p>'+(ready.length?ready.map(reviewDraftHtml).join('<hr>'):'<p>No current approved drafts are ready.</p>');return [{json:{show_selector:false,title:'Ready for manual sending',html,ready_count:ready.length}}];}\nreturn [{json:{show_selector:pending.length>0,title:pending.length?'Review queue':'No drafts awaiting review',html:table+(pending.length?'':'<p>The scheduler will place completed drafts here. Returned drafts require a new version and a new review.</p>'),form_fields:JSON.stringify([{fieldType:'html',html:table},{fieldLabel:'Account ID to review',fieldName:'account_id',fieldType:'dropdown',fieldOptions:{values:pending.map(r=>({option:r.account_id}))},requiredField:true}])}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ],
+      "id": "74f139a3-117b-4ace-8ca9-8015983e1538",
+      "name": "Prepare queue page",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6ac5a98f-5102-44e3-88b9-6d248b1ba592",
+              "leftValue": "={{ $json.show_selector }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "6714b2b2-8875-487a-80d5-971987ca1c2a",
+      "name": "Has a draft to review"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "text",
+        "completionTitle": "={{ $json.title }}",
+        "completionMessage": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        1440,
+        -240
+      ],
+      "id": "448c9d4a-b351-4c1f-bda8-e8c539553a6b",
+      "name": "Queue or ready list"
+    },
+    {
+      "parameters": {
+        "operation": "page",
+        "defineForm": "json",
+        "jsonOutput": "={{ $json.form_fields }}",
+        "options": {
+          "formTitle": "Choose an account",
+          "buttonLabel": "Show this draft"
+        }
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "97ca5a1c-fa58-493a-9fe5-1d722954b327",
+      "name": "Choose account"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function reviewerIdentity(user, allowedEmail) {\n  if(!allowedEmail || allowedEmail.includes('ENTER_')) throw new Error('REVIEW_CONFIGURATION: enter your n8n sign-in email in Reviewer settings');\n  if(!user || typeof user.id!=='string' || !user.id || typeof user.email!=='string') throw new Error('REVIEW_AUTH: authenticated n8n user identity is missing');\n  if(user.email.trim().toLowerCase()!==allowedEmail.trim().toLowerCase()) throw new Error('REVIEW_AUTH: this account is not the configured test reviewer');\n  return {id:user.id,email:user.email,name:[user.firstName,user.lastName].filter(Boolean).join(' ')||user.email};\n}\nconst submitted=$input.first().json;const request=$('Verify reviewer').first().json;const who=reviewerIdentity(submitted.user,request.allowed_reviewer_email);if(who.id!==request.reviewer.id)throw new Error('REVIEW_AUTH: reviewer changed');const account_id=String(submitted.account_id||'');if(!$('Read review queue').all().some(i=>i.json.account_id===account_id))throw new Error('REVIEW_INPUT: account was not in the displayed queue');return [{json:{account_id,reviewer:who}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        0
+      ],
+      "id": "21d9395f-584c-4101-8778-2f18105d131b",
+      "name": "Validate selected account",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ JSON.parse($('Reviewer settings').first().json.storage_config).review_queue_table_id }}"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "account_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.account_id }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1920,
+        0
+      ],
+      "id": "4e4e5a8d-6c10-4511-8048-2eb27ccb6a8d",
+      "name": "Load selected version",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function htmlEscape(value) {\n  return String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\"','&quot;').replaceAll(\"'\",'&#39;');\n}\nfunction reviewDraftHtml(row) {\n  const e=htmlEscape;\n  const a=JSON.parse(row.source_json);\n  const facts=[['Account manager',a.account_manager],['Manager',a.manager_name],['Contact',a.client_contact],['Assessment date',a.review_date],['Interactions',a.interactions_count],['Last interaction',a.last_interaction_date+' — '+a.last_interaction_type],['Health score',a.health_score??'Missing'],['Health updated',a.health_updated_date??'Missing'],['Open issues',a.open_issue_count+'; '+a.issue_summary],['Oldest issue (days)',a.oldest_open_issue_days],['Renewal date',a.renewal_date],['Delivery',a.delivery_status+'; '+a.delivery_note],['Milestone',a.recent_milestone+' ('+a.milestone_date+')'],['Relationship context',a.relationship_note]];\n  return '<h2>'+e(row.client_name)+'</h2><p><b>Account:</b> '+e(row.account_id)+' · <b>Version:</b> '+e(row.draft_version)+'<br><b>Version reference:</b> '+e(row.version_token)+'<br><b>Risk:</b> '+e(row.risk_class)+'<br><b>Approval:</b> '+e(row.approval_status)+'</p><p>'+e(row.reason)+'</p><h3>'+e(row.draft_subject||'Classification only')+'</h3><p>'+e(row.draft_text||'No outreach is proposed.').replaceAll('\\n','<br>')+'</p><h3>Source facts</h3><table>'+facts.map(([k,v])=>'<tr><th>'+e(k)+'</th><td>'+e(v)+'</td></tr>').join('')+'</table>';\n}\nconst rows=$input.all().map(i=>i.json).filter(r=>Object.keys(r).length>0);if(rows.length!==1||rows[0].approval_status!=='Awaiting review'||!rows[0].version_token)throw new Error('REVIEW_STALE: this account is no longer awaiting review; reopen the form');const row=rows[0];const reviewer=$('Validate selected account').first().json.reviewer;\nconst form_fields=JSON.stringify([{fieldType:'html',html:reviewDraftHtml(row)},{fieldLabel:'Decision for this version',fieldName:'decision',fieldType:'dropdown',fieldOptions:{values:[{option:'Approve'},{option:'Return for revision'}]},requiredField:true},{fieldLabel:'Review comment or revision instructions',fieldName:'comment',fieldType:'textarea',requiredField:true},{fieldLabel:'Review confirmation',fieldName:'reviewed',fieldType:'checkbox',fieldOptions:{values:[{option:'I reviewed this exact version'}]},requiredField:true}]);\nreturn [{json:{row,reviewer,form_fields}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        240
+      ],
+      "id": "139cbafe-7c48-498d-ac97-bdf80cca27ad",
+      "name": "Bind displayed version",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const event=(type,run,stage,message,payload,account='',token='')=>({json:{event_type:type,run_id:run,execution_id:String($execution.id),account_id:account,version_token:token,recorded_at:new Date().toISOString(),stage,message,payload_json:JSON.stringify(payload)}});\nconst b=$input.first().json;return [event('REVIEW_PRESENTED',b.row.run_id,'review','Exact saved draft prepared for authenticated human review.',{row:b.row,reviewer:b.reviewer},b.row.account_id,b.row.version_token)];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        240
+      ],
+      "id": "df7c3579-75ae-4817-81bd-3f07a78d87b6",
+      "name": "Build presentation record",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ JSON.parse($('Reviewer settings').first().json.storage_config).audit_table_id }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "event_type": "={{ $json.event_type }}",
+            "run_id": "={{ $json.run_id }}",
+            "execution_id": "={{ $json.execution_id }}",
+            "account_id": "={{ $json.account_id }}",
+            "version_token": "={{ $json.version_token }}",
+            "recorded_at": "={{ $json.recorded_at }}",
+            "stage": "={{ $json.stage }}",
+            "message": "={{ $json.message }}",
+            "payload_json": "={{ $json.payload_json }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "run_id",
+              "displayName": "run_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "version_token",
+              "displayName": "version_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recorded_at",
+              "displayName": "recorded_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload_json",
+              "displayName": "payload_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "optimizeBulk": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        240
+      ],
+      "id": "ea98f896-bae8-40eb-aeae-58f43759dcf1",
+      "name": "Save presentation record",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "page",
+        "defineForm": "json",
+        "jsonOutput": "={{ $('Bind displayed version').first().json.form_fields }}",
+        "options": {
+          "formTitle": "Review the displayed version",
+          "buttonLabel": "Record my decision"
+        }
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        1200,
+        240
+      ],
+      "id": "1f474759-6a04-4ba6-85c4-bdc153aa860e",
+      "name": "Review this version"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ JSON.parse($('Reviewer settings').first().json.storage_config).review_queue_table_id }}"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Bind displayed version').first().json.row.id }}"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        240
+      ],
+      "id": "dc0be334-40d0-4e67-818b-a06a05f3c4a2",
+      "name": "Read current version again",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function reviewerIdentity(user, allowedEmail) {\n  if(!allowedEmail || allowedEmail.includes('ENTER_')) throw new Error('REVIEW_CONFIGURATION: enter your n8n sign-in email in Reviewer settings');\n  if(!user || typeof user.id!=='string' || !user.id || typeof user.email!=='string') throw new Error('REVIEW_AUTH: authenticated n8n user identity is missing');\n  if(user.email.trim().toLowerCase()!==allowedEmail.trim().toLowerCase()) throw new Error('REVIEW_AUTH: this account is not the configured test reviewer');\n  return {id:user.id,email:user.email,name:[user.firstName,user.lastName].filter(Boolean).join(' ')||user.email};\n}\nfunction assertCurrentDraft(bound, current) {\n  if(!current || current.approval_status!=='Awaiting review') throw new Error('REVIEW_STALE: this version is no longer awaiting review; reopen the review queue');\n  const protectedFields=['id','account_id','client_name','draft_version','version_token','run_id','risk_class','reason','draft_kind','draft_subject','draft_text','source_json'];\n  for(const k of protectedFields) if(current[k]!==bound[k]) throw new Error('REVIEW_STALE: the account or draft changed after you opened it; reopen the review queue');\n}\nfunction decisionUpdate(bound, submission, current, allowedEmail, recordedAt) {\n  const who=reviewerIdentity(submission.user,allowedEmail);\n  if(who.id!==bound.reviewer.id) throw new Error('REVIEW_AUTH: reviewer changed during this review');\n  if(!['Approve','Return for revision'].includes(submission.decision)) throw new Error('REVIEW_INPUT: choose Approve or Return for revision');\n  if(!Array.isArray(submission.reviewed) || !submission.reviewed.includes('I reviewed this exact version')) throw new Error('REVIEW_INPUT: confirm that you reviewed this exact version');\n  const comment=typeof submission.comment==='string'?submission.comment.trim():'';\n  if(!comment || comment.length>2000) throw new Error('REVIEW_INPUT: provide a review comment of 1–2000 characters');\n  assertCurrentDraft(bound.row,current);\n  const approved=submission.decision==='Approve';\n  return {reviewer:who,decision:submission.decision,comment,row_before:bound.row,patch:{approval_status:approved?'Approved':'Returned for revision',delivery_status:approved?(bound.row.draft_kind==='none'?'No action':'Ready for manual sending'):'Not ready',reviewer_id:who.id,reviewer_name:who.name,reviewed_at:recordedAt,review_comment:comment}};\n}\nconst rows=$input.all().map(i=>i.json).filter(r=>Object.keys(r).length>0);if(rows.length!==1)throw new Error('REVIEW_STALE: current row is missing or duplicated');const bound=$('Bind displayed version').first().json;const submitted=$('Review this version').first().json;const decision=decisionUpdate(bound,submitted,rows[0],$('Verify reviewer').first().json.allowed_reviewer_email,new Date().toISOString());\nreturn [{json:decision}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        240
+      ],
+      "id": "a117d5db-ecef-406e-8321-ac3ae09c2d63",
+      "name": "Validate human decision",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const event=(type,run,stage,message,payload,account='',token='')=>({json:{event_type:type,run_id:run,execution_id:String($execution.id),account_id:account,version_token:token,recorded_at:new Date().toISOString(),stage,message,payload_json:JSON.stringify(payload)}});\nconst d=$input.first().json;return [event('REVIEW_SUBMITTED',d.row_before.run_id,'review','Authenticated human decision recorded for this exact version; conditional application follows.',d,d.row_before.account_id,d.row_before.version_token)];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        240
+      ],
+      "id": "179527fa-9f0e-4c5f-8c38-580f63ca45cc",
+      "name": "Build submitted decision",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ JSON.parse($('Reviewer settings').first().json.storage_config).audit_table_id }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "event_type": "={{ $json.event_type }}",
+            "run_id": "={{ $json.run_id }}",
+            "execution_id": "={{ $json.execution_id }}",
+            "account_id": "={{ $json.account_id }}",
+            "version_token": "={{ $json.version_token }}",
+            "recorded_at": "={{ $json.recorded_at }}",
+            "stage": "={{ $json.stage }}",
+            "message": "={{ $json.message }}",
+            "payload_json": "={{ $json.payload_json }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "run_id",
+              "displayName": "run_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "version_token",
+              "displayName": "version_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recorded_at",
+              "displayName": "recorded_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload_json",
+              "displayName": "payload_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "optimizeBulk": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        240
+      ],
+      "id": "8ddc75c0-5a72-46d0-b02e-d87c5a240766",
+      "name": "Save submitted decision",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{json:$('Validate human decision').first().json}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        240
+      ],
+      "id": "dd2b713a-28fe-489e-ac55-e1479c8202f1",
+      "name": "Prepare decision update",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ JSON.parse($('Reviewer settings').first().json.storage_config).review_queue_table_id }}"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.id }}"
+            },
+            {
+              "keyName": "account_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.account_id }}"
+            },
+            {
+              "keyName": "client_name",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.client_name }}"
+            },
+            {
+              "keyName": "draft_version",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.draft_version }}"
+            },
+            {
+              "keyName": "version_token",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.version_token }}"
+            },
+            {
+              "keyName": "run_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.run_id }}"
+            },
+            {
+              "keyName": "risk_class",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.risk_class }}"
+            },
+            {
+              "keyName": "reason",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.reason }}"
+            },
+            {
+              "keyName": "draft_kind",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.draft_kind }}"
+            },
+            {
+              "keyName": "draft_subject",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.draft_subject }}"
+            },
+            {
+              "keyName": "draft_text",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.draft_text }}"
+            },
+            {
+              "keyName": "source_json",
+              "condition": "eq",
+              "keyValue": "={{ $json.row_before.source_json }}"
+            },
+            {
+              "keyName": "approval_status",
+              "condition": "eq",
+              "keyValue": "Awaiting review"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "approval_status": "={{ $json.patch.approval_status }}",
+            "delivery_status": "={{ $json.patch.delivery_status }}",
+            "reviewer_id": "={{ $json.patch.reviewer_id }}",
+            "reviewer_name": "={{ $json.patch.reviewer_name }}",
+            "reviewed_at": "={{ $json.patch.reviewed_at }}",
+            "review_comment": "={{ $json.patch.review_comment }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "approval_status",
+              "displayName": "approval_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "delivery_status",
+              "displayName": "delivery_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewer_id",
+              "displayName": "reviewer_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewer_name",
+              "displayName": "reviewer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewed_at",
+              "displayName": "reviewed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_comment",
+              "displayName": "review_comment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "dryRun": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        500
+      ],
+      "id": "5fb47d01-0ac3-4772-96c8-704490721d20",
+      "name": "Apply only to current version",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows=$input.all().map(i=>i.json).filter(r=>Object.keys(r).length>0);const d=$('Validate human decision').first().json;if(rows.length!==1||rows[0].version_token!==d.row_before.version_token||Object.keys(d.patch).some(k=>rows[0][k]!==d.patch[k]))throw new Error('REVIEW_STALE: this decision was not applied because the draft changed or was already reviewed');return [{json:{...d,row_after:rows[0]}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        500
+      ],
+      "id": "c53eb3a3-5d1f-4e65-be96-ddc0b371ddf2",
+      "name": "Check applied decision",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const event=(type,run,stage,message,payload,account='',token='')=>({json:{event_type:type,run_id:run,execution_id:String($execution.id),account_id:account,version_token:token,recorded_at:new Date().toISOString(),stage,message,payload_json:JSON.stringify(payload)}});\nconst d=$input.first().json;return [event('REVIEW_APPLIED',d.row_after.run_id,'review','Human decision applied to the current version.',d,d.row_after.account_id,d.row_after.version_token)];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        500
+      ],
+      "id": "c2516d49-917d-470a-bfe5-7b05e35a6723",
+      "name": "Build applied decision",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ JSON.parse($('Reviewer settings').first().json.storage_config).audit_table_id }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "event_type": "={{ $json.event_type }}",
+            "run_id": "={{ $json.run_id }}",
+            "execution_id": "={{ $json.execution_id }}",
+            "account_id": "={{ $json.account_id }}",
+            "version_token": "={{ $json.version_token }}",
+            "recorded_at": "={{ $json.recorded_at }}",
+            "stage": "={{ $json.stage }}",
+            "message": "={{ $json.message }}",
+            "payload_json": "={{ $json.payload_json }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "run_id",
+              "displayName": "run_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "version_token",
+              "displayName": "version_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recorded_at",
+              "displayName": "recorded_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload_json",
+              "displayName": "payload_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "optimizeBulk": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        500
+      ],
+      "id": "cc2a052e-96b6-42a1-bb6c-3b735eb7d446",
+      "name": "Save applied decision",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function htmlEscape(value) {\n  return String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\"','&quot;').replaceAll(\"'\",'&#39;');\n}\nconst d=$('Check applied decision').first().json;const a=d.row_after;return [{json:{status:'REVIEW_RECORDED',account_id:a.account_id,version_token:a.version_token,draft_version:a.draft_version,decision:d.decision,approval_status:a.approval_status,delivery_status:a.delivery_status,reviewer_id:a.reviewer_id,review_execution_id:String($execution.id),saved_audit_row_id:$input.first().json.id,title:d.decision==='Approve'?'Approval recorded':'Returned for revision',html:'<p>'+htmlEscape(a.client_name)+' — version '+htmlEscape(a.draft_version)+'</p><p>'+htmlEscape(a.delivery_status)+'</p><p>'+(d.decision==='Approve'?'Only this current version was approved.':'The scheduler will generate a new version for fresh review.')+'</p><p>No client email was sent.</p>'}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        500
+      ],
+      "id": "4cccd48b-262b-434a-b4db-73a52dbfe361",
+      "name": "Review result",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "text",
+        "completionTitle": "={{ $json.title }}",
+        "completionMessage": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        1200,
+        500
+      ],
+      "id": "5883f4a6-bb34-423e-bc15-9ec645fdf205",
+      "name": "Decision confirmation"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function read(name){try{return $(name).all().map(i=>i.json);}catch{return [];}}\nconst event=(type,run,stage,message,payload,account='',token='')=>({json:{event_type:type,run_id:run,execution_id:String($execution.id),account_id:account,version_token:token,recorded_at:new Date().toISOString(),stage,message,payload_json:JSON.stringify(payload)}});\nconst errors=$input.all().map(i=>i.json);const detail=errors.map(e=>typeof e.error==='string'?e.error:e.error?.message||e.message||JSON.stringify(e)).join('; ');const bound=read('Bind displayed version')[0];const submitted=read('Review this version')[0];const request=read('Verify reviewer')[0];return [event('REVIEW_REJECTED_OR_ERROR',bound?.row?.run_id||'REVIEW-'+$execution.id,'review_error',detail,{errors,displayed_version:bound?.row,reviewer:request?.reviewer,submitted,applied_result:read('Apply only to current version'),instruction:'Reopen the review queue. Check the current row and audit events if a storage error occurred after application.'},bound?.row?.account_id||'',bound?.row?.version_token||'')];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        820
+      ],
+      "id": "cb1ea46c-0d3a-4465-9ba4-8e6371c99e7e",
+      "name": "Build review rejection"
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ JSON.parse($('Reviewer settings').first().json.storage_config).audit_table_id }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "event_type": "={{ $json.event_type }}",
+            "run_id": "={{ $json.run_id }}",
+            "execution_id": "={{ $json.execution_id }}",
+            "account_id": "={{ $json.account_id }}",
+            "version_token": "={{ $json.version_token }}",
+            "recorded_at": "={{ $json.recorded_at }}",
+            "stage": "={{ $json.stage }}",
+            "message": "={{ $json.message }}",
+            "payload_json": "={{ $json.payload_json }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "run_id",
+              "displayName": "run_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "version_token",
+              "displayName": "version_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recorded_at",
+              "displayName": "recorded_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload_json",
+              "displayName": "payload_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "optimizeBulk": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        820
+      ],
+      "id": "417c0197-02d8-49b9-8574-509290e3a698",
+      "name": "Save review rejection"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "text",
+        "completionTitle": "Review could not complete",
+        "completionMessage": "={{ $json.message }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        1200,
+        820
+      ],
+      "id": "b5b4e237-ad01-4839-a023-93aaa56e552f",
+      "name": "Review could not complete"
+    },
+    {
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "={{ $('Build review rejection').first().json.message }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        820
+      ],
+      "id": "4ea860a1-065b-4e13-a083-60f91d09824d",
+      "name": "Report review failure"
+    },
+    {
+      "parameters": {
+        "content": "## Human review for a fictional portfolio\nPaste storage_config from Setup complete and your n8n sign-in email into Reviewer settings. Keep n8n User Auth, Require Workflow Execute Permission, and Include User in Output enabled.\n\nApproval is specific to the displayed current version. Returning a draft records feedback; the scheduler generates a new version for fresh review. Ready for manual sending is an internal output view. No client communication is sent.\n\nRuntime checks to capture: approval of a current version; return, revision and new approval; rejection of an older open form. Stop after the fixed demonstration checklist is complete.",
+        "height": 420,
+        "width": 650
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1080
+      ],
+      "id": "507019fb-4a5b-474d-a558-4f682c4a481c",
+      "name": "Review guide"
+    }
+  ],
+  "connections": {
+    "Authenticated review form": {
+      "main": [
+        [
+          {
+            "node": "Reviewer settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reviewer settings": {
+      "main": [
+        [
+          {
+            "node": "Verify reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify reviewer": {
+      "main": [
+        [
+          {
+            "node": "Read review queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read review queue": {
+      "main": [
+        [
+          {
+            "node": "Prepare queue page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare queue page": {
+      "main": [
+        [
+          {
+            "node": "Has a draft to review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has a draft to review": {
+      "main": [
+        [
+          {
+            "node": "Choose account",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Queue or ready list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Choose account": {
+      "main": [
+        [
+          {
+            "node": "Validate selected account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate selected account": {
+      "main": [
+        [
+          {
+            "node": "Load selected version",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load selected version": {
+      "main": [
+        [
+          {
+            "node": "Bind displayed version",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bind displayed version": {
+      "main": [
+        [
+          {
+            "node": "Build presentation record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build presentation record": {
+      "main": [
+        [
+          {
+            "node": "Save presentation record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save presentation record": {
+      "main": [
+        [
+          {
+            "node": "Review this version",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review this version": {
+      "main": [
+        [
+          {
+            "node": "Read current version again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read current version again": {
+      "main": [
+        [
+          {
+            "node": "Validate human decision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate human decision": {
+      "main": [
+        [
+          {
+            "node": "Build submitted decision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build submitted decision": {
+      "main": [
+        [
+          {
+            "node": "Save submitted decision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save submitted decision": {
+      "main": [
+        [
+          {
+            "node": "Prepare decision update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare decision update": {
+      "main": [
+        [
+          {
+            "node": "Apply only to current version",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply only to current version": {
+      "main": [
+        [
+          {
+            "node": "Check applied decision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check applied decision": {
+      "main": [
+        [
+          {
+            "node": "Build applied decision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build applied decision": {
+      "main": [
+        [
+          {
+            "node": "Save applied decision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save applied decision": {
+      "main": [
+        [
+          {
+            "node": "Review result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review result": {
+      "main": [
+        [
+          {
+            "node": "Decision confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build review rejection": {
+      "main": [
+        [
+          {
+            "node": "Save review rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save review rejection": {
+      "main": [
+        [
+          {
+            "node": "Review could not complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review could not complete": {
+      "main": [
+        [
+          {
+            "node": "Report review failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/London",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  },
+  "tags": []
+}

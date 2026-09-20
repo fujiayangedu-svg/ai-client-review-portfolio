@@ -1,0 +1,34 @@
+[
+  {
+    "status": "REVIEW_QUEUE_SAVED",
+    "run_id": "RESUME-02-B05",
+    "execution_id": "276",
+    "execution_mode": "production",
+    "model": "gpt-5.4-mini-2026-03-17",
+    "response_id": "resp_09589ba407422521006aae517d55f887d1acd45d0a70adb9d4",
+    "processed_in_this_run": 2,
+    "expected_account_count": 34,
+    "accounts": [
+      {
+        "account_id": "C033",
+        "risk_class": "Review Pending",
+        "draft_version": 2,
+        "version_token": "GEN-276-C033-V2",
+        "approval_status": "Awaiting review",
+        "delivery_status": "Not ready"
+      },
+      {
+        "account_id": "C034",
+        "risk_class": "Review Pending",
+        "draft_version": 2,
+        "version_token": "GEN-276-C034-V2",
+        "approval_status": "Awaiting review",
+        "delivery_status": "Not ready"
+      }
+    ],
+    "saved_audit_row_id": 71,
+    "review_queue_table_id": "REDACTED_TABLE_ID",
+    "human_approval_performed": false,
+    "client_email_sent": false
+  }
+]

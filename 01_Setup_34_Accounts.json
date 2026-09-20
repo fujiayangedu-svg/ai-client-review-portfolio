@@ -1,0 +1,1316 @@
+{
+  "name": "Client Review Portfolio - 01 Setup 34 accounts",
+  "nodes": [
+    {
+      "name": "Manual setup",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "parameters": {},
+      "position": [
+        0,
+        0
+      ],
+      "id": "a98715f5-a68a-424c-8e3d-f46b5fea8eb3"
+    },
+    {
+      "name": "Create audit table",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "ClientReview_Demo34_Audit",
+        "columns": {
+          "column": [
+            {
+              "name": "event_type",
+              "type": "string"
+            },
+            {
+              "name": "run_id",
+              "type": "string"
+            },
+            {
+              "name": "execution_id",
+              "type": "string"
+            },
+            {
+              "name": "account_id",
+              "type": "string"
+            },
+            {
+              "name": "version_token",
+              "type": "string"
+            },
+            {
+              "name": "recorded_at",
+              "type": "string"
+            },
+            {
+              "name": "stage",
+              "type": "string"
+            },
+            {
+              "name": "message",
+              "type": "string"
+            },
+            {
+              "name": "payload_json",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "position": [
+        300,
+        0
+      ],
+      "id": "3f5c7c23-12b1-4193-abc6-c531167db9dd",
+      "executeOnce": true
+    },
+    {
+      "name": "Check audit schema",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function validateTable(table, name, expectedColumns) {\n  if (!table || typeof table.id !== 'string' || !table.id) throw new Error(`STORAGE_SCHEMA: ${name} has no table ID`);\n  if (table.name !== name) throw new Error(`STORAGE_SCHEMA: expected ${name}; received ${table.name}`);\n  const actual = new Map((table.columns || []).map(c=>[c.name,c.type]));\n  for (const column of expectedColumns) {\n    if (actual.get(column.name) !== column.type) throw new Error(`STORAGE_SCHEMA: ${name}.${column.name} must be ${column.type}`);\n  }\n  return table;\n}\nreturn [{json:validateTable($('Create audit table').first().json,\"ClientReview_Demo34_Audit\",[{\"name\":\"event_type\",\"type\":\"string\"},{\"name\":\"run_id\",\"type\":\"string\"},{\"name\":\"execution_id\",\"type\":\"string\"},{\"name\":\"account_id\",\"type\":\"string\"},{\"name\":\"version_token\",\"type\":\"string\"},{\"name\":\"recorded_at\",\"type\":\"string\"},{\"name\":\"stage\",\"type\":\"string\"},{\"name\":\"message\",\"type\":\"string\"},{\"name\":\"payload_json\",\"type\":\"string\"}])}];"
+      },
+      "position": [
+        600,
+        0
+      ],
+      "id": "c2ad20b4-fefc-46e9-b03e-963aaec422ec"
+    },
+    {
+      "name": "Create CRM table",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "ClientReview_Demo34_CRM",
+        "columns": {
+          "column": [
+            {
+              "name": "account_id",
+              "type": "string"
+            },
+            {
+              "name": "client_name",
+              "type": "string"
+            },
+            {
+              "name": "account_manager",
+              "type": "string"
+            },
+            {
+              "name": "manager_name",
+              "type": "string"
+            },
+            {
+              "name": "client_contact",
+              "type": "string"
+            },
+            {
+              "name": "review_date",
+              "type": "string"
+            },
+            {
+              "name": "interactions_count",
+              "type": "number"
+            },
+            {
+              "name": "last_interaction_date",
+              "type": "string"
+            },
+            {
+              "name": "last_interaction_type",
+              "type": "string"
+            },
+            {
+              "name": "open_issue_count",
+              "type": "number"
+            },
+            {
+              "name": "open_issue_severity",
+              "type": "string"
+            },
+            {
+              "name": "oldest_open_issue_days",
+              "type": "number"
+            },
+            {
+              "name": "issue_summary",
+              "type": "string"
+            },
+            {
+              "name": "renewal_date",
+              "type": "string"
+            },
+            {
+              "name": "health_score",
+              "type": "number"
+            },
+            {
+              "name": "health_updated_date",
+              "type": "string"
+            },
+            {
+              "name": "relationship_note",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "position": [
+        900,
+        0
+      ],
+      "id": "4fdd6fea-35e0-4d93-8add-b97b8a26148b",
+      "executeOnce": true
+    },
+    {
+      "name": "Check CRM schema",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function validateTable(table, name, expectedColumns) {\n  if (!table || typeof table.id !== 'string' || !table.id) throw new Error(`STORAGE_SCHEMA: ${name} has no table ID`);\n  if (table.name !== name) throw new Error(`STORAGE_SCHEMA: expected ${name}; received ${table.name}`);\n  const actual = new Map((table.columns || []).map(c=>[c.name,c.type]));\n  for (const column of expectedColumns) {\n    if (actual.get(column.name) !== column.type) throw new Error(`STORAGE_SCHEMA: ${name}.${column.name} must be ${column.type}`);\n  }\n  return table;\n}\nreturn [{json:validateTable($('Create CRM table').first().json,\"ClientReview_Demo34_CRM\",[{\"name\":\"account_id\",\"type\":\"string\"},{\"name\":\"client_name\",\"type\":\"string\"},{\"name\":\"account_manager\",\"type\":\"string\"},{\"name\":\"manager_name\",\"type\":\"string\"},{\"name\":\"client_contact\",\"type\":\"string\"},{\"name\":\"review_date\",\"type\":\"string\"},{\"name\":\"interactions_count\",\"type\":\"number\"},{\"name\":\"last_interaction_date\",\"type\":\"string\"},{\"name\":\"last_interaction_type\",\"type\":\"string\"},{\"name\":\"open_issue_count\",\"type\":\"number\"},{\"name\":\"open_issue_severity\",\"type\":\"string\"},{\"name\":\"oldest_open_issue_days\",\"type\":\"number\"},{\"name\":\"issue_summary\",\"type\":\"string\"},{\"name\":\"renewal_date\",\"type\":\"string\"},{\"name\":\"health_score\",\"type\":\"number\"},{\"name\":\"health_updated_date\",\"type\":\"string\"},{\"name\":\"relationship_note\",\"type\":\"string\"}])}];"
+      },
+      "position": [
+        1200,
+        0
+      ],
+      "id": "e0487e35-7c35-4e5a-824e-5d13f950a1a5"
+    },
+    {
+      "name": "Prepare fictional CRM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{\"account_id\":\"C001\",\"client_name\":\"Northstar Retail\",\"account_manager\":\"Maya Chen\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Sam Patel\",\"review_date\":\"2026-08-31\",\"interactions_count\":8,\"last_interaction_date\":\"2026-08-28\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2027-02-28\",\"health_score\":5,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Sam prefers a short email after project milestones.\"},{\"account_id\":\"C002\",\"client_name\":\"Beacon Health\",\"account_manager\":\"Priya Shah\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Alex Morgan\",\"review_date\":\"2026-08-31\",\"interactions_count\":2,\"last_interaction_date\":\"2026-08-16\",\"last_interaction_type\":\"Email\",\"open_issue_count\":1,\"open_issue_severity\":\"low\",\"oldest_open_issue_days\":7,\"issue_summary\":\"Alex requested a different column order in the reporting export.\",\"renewal_date\":\"2026-10-15\",\"health_score\":3,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Alex asked to discuss how the new reporting portal fits the team's weekly routine.\"},{\"account_id\":\"C003\",\"client_name\":\"Alder Finance\",\"account_manager\":\"Owen Reed\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Jordan Ellis\",\"review_date\":\"2026-08-31\",\"interactions_count\":0,\"last_interaction_date\":\"2026-07-21\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":2,\"open_issue_severity\":\"high\",\"oldest_open_issue_days\":21,\"issue_summary\":\"API authentication remains unresolved; the reconciliation report is unavailable.\",\"renewal_date\":\"2026-11-30\",\"health_score\":1,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Jordan previously requested clear ownership and a realistic recovery plan.\"},{\"account_id\":\"C004\",\"client_name\":\"Cedar Energy\",\"account_manager\":\"Elena Ruiz\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Taylor Brooks\",\"review_date\":\"2026-08-31\",\"interactions_count\":5,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2027-01-31\",\"health_score\":null,\"health_updated_date\":null,\"relationship_note\":\"Taylor prefers practical updates tied to staff training.\"},{\"account_id\":\"C005\",\"client_name\":\"Grove Logistics\",\"account_manager\":\"Maya Chen\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Jamie Lee\",\"review_date\":\"2026-08-31\",\"interactions_count\":3,\"last_interaction_date\":\"2026-08-18\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Jamie prefers concise updates that refer to the team's current dispatch dashboard.\"},{\"account_id\":\"C006\",\"client_name\":\"Harbour Learning\",\"account_manager\":\"Priya Shah\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Morgan Reed\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-10-31\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Morgan prefers concise updates that refer to the team's current course portal.\"},{\"account_id\":\"C007\",\"client_name\":\"Juniper Design\",\"account_manager\":\"Owen Reed\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Casey Dunn\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Casey prefers concise updates that refer to the team's current asset library.\"},{\"account_id\":\"C008\",\"client_name\":\"Maple Foods\",\"account_manager\":\"Elena Ruiz\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Riley Hart\",\"review_date\":\"2026-08-31\",\"interactions_count\":9,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":5,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Riley prefers concise updates that refer to the team's current order tracker.\"},{\"account_id\":\"C009\",\"client_name\":\"Oakfield Travel\",\"account_manager\":\"Noah Ellis\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Robin Cole\",\"review_date\":\"2026-08-31\",\"interactions_count\":3,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Robin prefers concise updates that refer to the team's current booking dashboard.\"},{\"account_id\":\"C010\",\"client_name\":\"Pine Arts\",\"account_manager\":\"Amira Khan\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Drew Lane\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-31\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Drew prefers concise updates that refer to the team's current membership portal.\"},{\"account_id\":\"C011\",\"client_name\":\"Quartz Services\",\"account_manager\":\"Maya Chen\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Avery Bell\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Avery prefers concise updates that refer to the team's current service dashboard.\"},{\"account_id\":\"C012\",\"client_name\":\"Riverbank Media\",\"account_manager\":\"Priya Shah\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Cameron Hall\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-01\",\"relationship_note\":\"Cameron prefers concise updates that refer to the team's current campaign workspace.\"},{\"account_id\":\"C013\",\"client_name\":\"Summit Works\",\"account_manager\":\"Owen Reed\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Quinn West\",\"review_date\":\"2026-08-31\",\"interactions_count\":12,\"last_interaction_date\":\"2026-08-30\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Quinn prefers concise updates that refer to the team's current equipment register.\"},{\"account_id\":\"C014\",\"client_name\":\"Thistle Labs\",\"account_manager\":\"Elena Ruiz\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Harper Wood\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":3,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Harper prefers concise updates that refer to the team's current document portal.\"},{\"account_id\":\"C015\",\"client_name\":\"Union Mobility\",\"account_manager\":\"Noah Ellis\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Reese Stone\",\"review_date\":\"2026-08-31\",\"interactions_count\":1,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Reese prefers concise updates that refer to the team's current fleet dashboard.\"},{\"account_id\":\"C016\",\"client_name\":\"Vale Training\",\"account_manager\":\"Amira Khan\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Skyler Ross\",\"review_date\":\"2026-08-31\",\"interactions_count\":2,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Skyler prefers concise updates that refer to the team's current learner portal.\"},{\"account_id\":\"C017\",\"client_name\":\"Willow Events\",\"account_manager\":\"Maya Chen\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Emerson Lake\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-17\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Emerson prefers concise updates that refer to the team's current event workspace.\"},{\"account_id\":\"C018\",\"client_name\":\"Yarrow Textiles\",\"account_manager\":\"Priya Shah\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Sage Hill\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-02\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Sage prefers concise updates that refer to the team's current supplier dashboard.\"},{\"account_id\":\"C019\",\"client_name\":\"Ashford Studio\",\"account_manager\":\"Owen Reed\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Parker Fox\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":1,\"open_issue_severity\":\"low\",\"oldest_open_issue_days\":1,\"issue_summary\":\"The contact requested a clearer column label in the project view.\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Parker prefers concise updates that refer to the team's current project workspace.\"},{\"account_id\":\"C020\",\"client_name\":\"Birch Housing\",\"account_manager\":\"Elena Ruiz\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Finley Green\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":1,\"open_issue_severity\":\"medium\",\"oldest_open_issue_days\":13,\"issue_summary\":\"The repairs export still omits the contact reference column.\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Finley prefers concise updates that refer to the team's current repairs dashboard.\"},{\"account_id\":\"C021\",\"client_name\":\"Cobalt Sports\",\"account_manager\":\"Noah Ellis\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Hayden Scott\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-10-30\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Hayden prefers concise updates that refer to the team's current coaching portal.\"},{\"account_id\":\"C022\",\"client_name\":\"Dune Publishing\",\"account_manager\":\"Amira Khan\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Rowan King\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-08-31\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Rowan prefers concise updates that refer to the team's current editorial workspace.\"},{\"account_id\":\"C023\",\"client_name\":\"Elm Manufacturing\",\"account_manager\":\"Maya Chen\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Kendall Brooks\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-08-30\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Kendall prefers concise updates that refer to the team's current quality dashboard.\"},{\"account_id\":\"C024\",\"client_name\":\"Fable Tourism\",\"account_manager\":\"Priya Shah\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Blair Young\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Blair prefers concise updates that refer to the team's current visitor portal.\"},{\"account_id\":\"C025\",\"client_name\":\"Granite Support\",\"account_manager\":\"Owen Reed\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Logan Ward\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":2,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Logan prefers concise updates that refer to the team's current support workspace.\"},{\"account_id\":\"C026\",\"client_name\":\"Hazel Research\",\"account_manager\":\"Elena Ruiz\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Alexis Gray\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":1,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Alexis prefers concise updates that refer to the team's current study workspace.\"},{\"account_id\":\"C027\",\"client_name\":\"Indigo Retail\",\"account_manager\":\"Noah Ellis\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Taylor Shaw\",\"review_date\":\"2026-08-31\",\"interactions_count\":0,\"last_interaction_date\":\"2026-07-30\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Taylor prefers concise updates that refer to the team's current stock dashboard.\"},{\"account_id\":\"C028\",\"client_name\":\"Kestrel Digital\",\"account_manager\":\"Amira Khan\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Charlie Moss\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-01\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Charlie prefers concise updates that refer to the team's current release workspace.\"},{\"account_id\":\"C029\",\"client_name\":\"Linden Partners\",\"account_manager\":\"Maya Chen\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Dakota Price\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":1,\"open_issue_severity\":\"high\",\"oldest_open_issue_days\":3,\"issue_summary\":\"The agreed case export is unavailable because permissions are unresolved.\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Dakota prefers concise updates that refer to the team's current case workspace.\"},{\"account_id\":\"C030\",\"client_name\":\"Moss Analytics\",\"account_manager\":\"Priya Shah\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Jordan Page\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":1,\"open_issue_severity\":\"critical\",\"oldest_open_issue_days\":1,\"issue_summary\":\"The reporting workspace is inaccessible to the client team.\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Jordan prefers concise updates that refer to the team's current reporting workspace.\"},{\"account_id\":\"C031\",\"client_name\":\"Nimbus Community\",\"account_manager\":\"Owen Reed\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Bailey Rice\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":1,\"open_issue_severity\":\"low\",\"oldest_open_issue_days\":14,\"issue_summary\":\"The volunteer directory export still contains an incorrect field label.\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Bailey prefers concise updates that refer to the team's current volunteer portal.\"},{\"account_id\":\"C032\",\"client_name\":\"Orchard Skills\",\"account_manager\":\"Elena Ruiz\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Elliot Snow\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":null,\"health_updated_date\":\"2026-08-28\",\"relationship_note\":\"Elliot prefers concise updates that refer to the team's current training workspace.\"},{\"account_id\":\"C033\",\"client_name\":\"Pebble Energy\",\"account_manager\":\"Noah Ellis\",\"manager_name\":\"Sara Lim\",\"client_contact\":\"Arden Wells\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":4,\"health_updated_date\":\"2026-07-31\",\"relationship_note\":\"Arden prefers concise updates that refer to the team's current asset dashboard.\"},{\"account_id\":\"C034\",\"client_name\":\"Rowan Infrastructure\",\"account_manager\":\"Amira Khan\",\"manager_name\":\"Leo Martin\",\"client_contact\":\"Remy Ford\",\"review_date\":\"2026-08-31\",\"interactions_count\":6,\"last_interaction_date\":\"2026-08-27\",\"last_interaction_type\":\"Video call\",\"open_issue_count\":0,\"open_issue_severity\":\"none\",\"oldest_open_issue_days\":0,\"issue_summary\":\"No open issues\",\"renewal_date\":\"2026-12-29\",\"health_score\":2,\"health_updated_date\":null,\"relationship_note\":\"Remy prefers concise updates that refer to the team's current delivery workspace.\"}].map(json=>({json}));"
+      },
+      "position": [
+        1500,
+        0
+      ],
+      "id": "287342e9-fbaf-4c08-b476-496bf839be77"
+    },
+    {
+      "name": "Load fictional CRM",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create CRM table').first().json.id }}"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "account_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.account_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "account_id": "={{ $json.account_id }}",
+            "client_name": "={{ $json.client_name }}",
+            "account_manager": "={{ $json.account_manager }}",
+            "manager_name": "={{ $json.manager_name }}",
+            "client_contact": "={{ $json.client_contact }}",
+            "review_date": "={{ $json.review_date }}",
+            "interactions_count": "={{ $json.interactions_count }}",
+            "last_interaction_date": "={{ $json.last_interaction_date }}",
+            "last_interaction_type": "={{ $json.last_interaction_type }}",
+            "open_issue_count": "={{ $json.open_issue_count }}",
+            "open_issue_severity": "={{ $json.open_issue_severity }}",
+            "oldest_open_issue_days": "={{ $json.oldest_open_issue_days }}",
+            "issue_summary": "={{ $json.issue_summary }}",
+            "renewal_date": "={{ $json.renewal_date }}",
+            "health_score": "={{ $json.health_score }}",
+            "health_updated_date": "={{ $json.health_updated_date }}",
+            "relationship_note": "={{ $json.relationship_note }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_manager",
+              "displayName": "account_manager",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "manager_name",
+              "displayName": "manager_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_contact",
+              "displayName": "client_contact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_date",
+              "displayName": "review_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interactions_count",
+              "displayName": "interactions_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_interaction_date",
+              "displayName": "last_interaction_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_interaction_type",
+              "displayName": "last_interaction_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "open_issue_count",
+              "displayName": "open_issue_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "open_issue_severity",
+              "displayName": "open_issue_severity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "oldest_open_issue_days",
+              "displayName": "oldest_open_issue_days",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issue_summary",
+              "displayName": "issue_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "renewal_date",
+              "displayName": "renewal_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "health_score",
+              "displayName": "health_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "health_updated_date",
+              "displayName": "health_updated_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "relationship_note",
+              "displayName": "relationship_note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "dryRun": false
+        }
+      },
+      "position": [
+        0,
+        260
+      ],
+      "id": "4261b7a8-7267-4a13-95ab-252db60d6b83"
+    },
+    {
+      "name": "Create delivery table",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "ClientReview_Demo34_Delivery",
+        "columns": {
+          "column": [
+            {
+              "name": "account_id",
+              "type": "string"
+            },
+            {
+              "name": "review_date",
+              "type": "string"
+            },
+            {
+              "name": "delivery_status",
+              "type": "string"
+            },
+            {
+              "name": "project_name",
+              "type": "string"
+            },
+            {
+              "name": "recent_milestone",
+              "type": "string"
+            },
+            {
+              "name": "milestone_date",
+              "type": "string"
+            },
+            {
+              "name": "delivery_note",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "position": [
+        300,
+        260
+      ],
+      "id": "22099d0d-9f0c-4ab9-a9d9-ba0f5f89d4a4",
+      "executeOnce": true
+    },
+    {
+      "name": "Check delivery schema",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function validateTable(table, name, expectedColumns) {\n  if (!table || typeof table.id !== 'string' || !table.id) throw new Error(`STORAGE_SCHEMA: ${name} has no table ID`);\n  if (table.name !== name) throw new Error(`STORAGE_SCHEMA: expected ${name}; received ${table.name}`);\n  const actual = new Map((table.columns || []).map(c=>[c.name,c.type]));\n  for (const column of expectedColumns) {\n    if (actual.get(column.name) !== column.type) throw new Error(`STORAGE_SCHEMA: ${name}.${column.name} must be ${column.type}`);\n  }\n  return table;\n}\nreturn [{json:validateTable($('Create delivery table').first().json,\"ClientReview_Demo34_Delivery\",[{\"name\":\"account_id\",\"type\":\"string\"},{\"name\":\"review_date\",\"type\":\"string\"},{\"name\":\"delivery_status\",\"type\":\"string\"},{\"name\":\"project_name\",\"type\":\"string\"},{\"name\":\"recent_milestone\",\"type\":\"string\"},{\"name\":\"milestone_date\",\"type\":\"string\"},{\"name\":\"delivery_note\",\"type\":\"string\"}])}];"
+      },
+      "position": [
+        600,
+        260
+      ],
+      "id": "89753f4d-7f9e-4d4e-becb-b43426b69ec4"
+    },
+    {
+      "name": "Prepare fictional delivery",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{\"account_id\":\"C001\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Inventory Dashboard\",\"recent_milestone\":\"Inventory dashboard rollout completed\",\"milestone_date\":\"2026-08-26\",\"delivery_note\":\"The agreed August deliverables were completed.\"},{\"account_id\":\"C002\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Reporting Portal\",\"recent_milestone\":\"Phase 1 reporting portal made available\",\"milestone_date\":\"2026-08-20\",\"delivery_note\":\"Portal delivered; requested export column order is still being reviewed.\"},{\"account_id\":\"C003\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"blocked\",\"project_name\":\"Reconciliation Integration\",\"recent_milestone\":\"Integration checkpoint missed\",\"milestone_date\":\"2026-08-15\",\"delivery_note\":\"API authentication has blocked integration since 14 August; a recovery date is not confirmed.\"},{\"account_id\":\"C004\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Staff Training\",\"recent_milestone\":\"Training materials delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"Training materials delivered for the next staff session.\"},{\"account_id\":\"C005\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Dispatch Dashboard\",\"recent_milestone\":\"Dispatch filters released\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C006\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Course Portal\",\"recent_milestone\":\"Course search released\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C007\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Asset Library\",\"recent_milestone\":\"Brand assets migrated\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C008\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Order Tracker\",\"recent_milestone\":\"Order status view released\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C009\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Booking Dashboard\",\"recent_milestone\":\"Booking filters delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C010\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Membership Portal\",\"recent_milestone\":\"Member search enabled\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C011\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Service Dashboard\",\"recent_milestone\":\"Service report delivered\",\"milestone_date\":\"2026-08-31\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C012\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Campaign Workspace\",\"recent_milestone\":\"Campaign templates delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C013\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Equipment Register\",\"recent_milestone\":\"Equipment register imported\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C014\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Document Portal\",\"recent_milestone\":\"Document search delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C015\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Fleet Dashboard\",\"recent_milestone\":\"Fleet summary delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C016\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Learner Portal\",\"recent_milestone\":\"Attendance view enabled\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C017\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Event Workspace\",\"recent_milestone\":\"Registration filters delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C018\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Supplier Dashboard\",\"recent_milestone\":\"Supplier search delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C019\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Project Workspace\",\"recent_milestone\":\"Project view delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C020\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Repairs Dashboard\",\"recent_milestone\":\"Repairs summary delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C021\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Coaching Portal\",\"recent_milestone\":\"Session search delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C022\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Editorial Workspace\",\"recent_milestone\":\"Editorial status view enabled\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C023\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Quality Dashboard\",\"recent_milestone\":\"Quality filters delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C024\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"at_risk\",\"project_name\":\"Visitor Portal\",\"recent_milestone\":\"Visitor summary delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The remaining accessibility review may delay the next release; no revised delivery date is agreed.\"},{\"account_id\":\"C025\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Support Workspace\",\"recent_milestone\":\"Ticket search delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C026\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Study Workspace\",\"recent_milestone\":\"Study index delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C027\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Stock Dashboard\",\"recent_milestone\":\"Stock summary delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C028\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Release Workspace\",\"recent_milestone\":\"Release view delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C029\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Case Workspace\",\"recent_milestone\":\"Case filters delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C030\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Reporting Workspace\",\"recent_milestone\":\"Report search delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C031\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Volunteer Portal\",\"recent_milestone\":\"Volunteer directory delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C032\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Training Workspace\",\"recent_milestone\":\"Training catalogue delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C033\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"on_track\",\"project_name\":\"Asset Dashboard\",\"recent_milestone\":\"Asset filters delivered\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"The stated milestone was delivered; no delivery issue is recorded.\"},{\"account_id\":\"C034\",\"review_date\":\"2026-08-31\",\"delivery_status\":\"blocked\",\"project_name\":\"Delivery Workspace\",\"recent_milestone\":\"Delivery checkpoint reviewed\",\"milestone_date\":\"2026-08-25\",\"delivery_note\":\"An unresolved dependency blocks the next delivery; no recovery date has been agreed.\"}].map(json=>({json}));"
+      },
+      "position": [
+        900,
+        260
+      ],
+      "id": "26e22985-3b27-4cdb-b404-cfc8a565beb8"
+    },
+    {
+      "name": "Load fictional delivery",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create delivery table').first().json.id }}"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "account_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.account_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "account_id": "={{ $json.account_id }}",
+            "review_date": "={{ $json.review_date }}",
+            "delivery_status": "={{ $json.delivery_status }}",
+            "project_name": "={{ $json.project_name }}",
+            "recent_milestone": "={{ $json.recent_milestone }}",
+            "milestone_date": "={{ $json.milestone_date }}",
+            "delivery_note": "={{ $json.delivery_note }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_date",
+              "displayName": "review_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "delivery_status",
+              "displayName": "delivery_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "project_name",
+              "displayName": "project_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recent_milestone",
+              "displayName": "recent_milestone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "milestone_date",
+              "displayName": "milestone_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "delivery_note",
+              "displayName": "delivery_note",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "dryRun": false
+        }
+      },
+      "position": [
+        1200,
+        260
+      ],
+      "id": "02f31084-ae31-43d4-904c-f24e2e30704d"
+    },
+    {
+      "name": "Create review queue",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "ClientReview_Demo34_Queue",
+        "columns": {
+          "column": [
+            {
+              "name": "account_id",
+              "type": "string"
+            },
+            {
+              "name": "client_name",
+              "type": "string"
+            },
+            {
+              "name": "draft_version",
+              "type": "number"
+            },
+            {
+              "name": "version_token",
+              "type": "string"
+            },
+            {
+              "name": "run_id",
+              "type": "string"
+            },
+            {
+              "name": "risk_class",
+              "type": "string"
+            },
+            {
+              "name": "reason",
+              "type": "string"
+            },
+            {
+              "name": "draft_kind",
+              "type": "string"
+            },
+            {
+              "name": "draft_subject",
+              "type": "string"
+            },
+            {
+              "name": "draft_text",
+              "type": "string"
+            },
+            {
+              "name": "approval_status",
+              "type": "string"
+            },
+            {
+              "name": "delivery_status",
+              "type": "string"
+            },
+            {
+              "name": "reviewer_id",
+              "type": "string"
+            },
+            {
+              "name": "reviewer_name",
+              "type": "string"
+            },
+            {
+              "name": "reviewed_at",
+              "type": "string"
+            },
+            {
+              "name": "review_comment",
+              "type": "string"
+            },
+            {
+              "name": "source_json",
+              "type": "string"
+            },
+            {
+              "name": "model_name",
+              "type": "string"
+            },
+            {
+              "name": "response_id",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "position": [
+        1500,
+        260
+      ],
+      "id": "b87da29b-6a05-4186-b75e-c040e863ecc8",
+      "executeOnce": true
+    },
+    {
+      "name": "Check queue schema",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function validateTable(table, name, expectedColumns) {\n  if (!table || typeof table.id !== 'string' || !table.id) throw new Error(`STORAGE_SCHEMA: ${name} has no table ID`);\n  if (table.name !== name) throw new Error(`STORAGE_SCHEMA: expected ${name}; received ${table.name}`);\n  const actual = new Map((table.columns || []).map(c=>[c.name,c.type]));\n  for (const column of expectedColumns) {\n    if (actual.get(column.name) !== column.type) throw new Error(`STORAGE_SCHEMA: ${name}.${column.name} must be ${column.type}`);\n  }\n  return table;\n}\nreturn [{json:validateTable($('Create review queue').first().json,\"ClientReview_Demo34_Queue\",[{\"name\":\"account_id\",\"type\":\"string\"},{\"name\":\"client_name\",\"type\":\"string\"},{\"name\":\"draft_version\",\"type\":\"number\"},{\"name\":\"version_token\",\"type\":\"string\"},{\"name\":\"run_id\",\"type\":\"string\"},{\"name\":\"risk_class\",\"type\":\"string\"},{\"name\":\"reason\",\"type\":\"string\"},{\"name\":\"draft_kind\",\"type\":\"string\"},{\"name\":\"draft_subject\",\"type\":\"string\"},{\"name\":\"draft_text\",\"type\":\"string\"},{\"name\":\"approval_status\",\"type\":\"string\"},{\"name\":\"delivery_status\",\"type\":\"string\"},{\"name\":\"reviewer_id\",\"type\":\"string\"},{\"name\":\"reviewer_name\",\"type\":\"string\"},{\"name\":\"reviewed_at\",\"type\":\"string\"},{\"name\":\"review_comment\",\"type\":\"string\"},{\"name\":\"source_json\",\"type\":\"string\"},{\"name\":\"model_name\",\"type\":\"string\"},{\"name\":\"response_id\",\"type\":\"string\"}])}];"
+      },
+      "position": [
+        0,
+        520
+      ],
+      "id": "34380ea7-dcb2-4ed7-8c7a-13328d1ae9c4"
+    },
+    {
+      "name": "Prepare account slots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{\"account_id\":\"C001\",\"client_name\":\"Northstar Retail\"},{\"account_id\":\"C002\",\"client_name\":\"Beacon Health\"},{\"account_id\":\"C003\",\"client_name\":\"Alder Finance\"},{\"account_id\":\"C004\",\"client_name\":\"Cedar Energy\"},{\"account_id\":\"C005\",\"client_name\":\"Grove Logistics\"},{\"account_id\":\"C006\",\"client_name\":\"Harbour Learning\"},{\"account_id\":\"C007\",\"client_name\":\"Juniper Design\"},{\"account_id\":\"C008\",\"client_name\":\"Maple Foods\"},{\"account_id\":\"C009\",\"client_name\":\"Oakfield Travel\"},{\"account_id\":\"C010\",\"client_name\":\"Pine Arts\"},{\"account_id\":\"C011\",\"client_name\":\"Quartz Services\"},{\"account_id\":\"C012\",\"client_name\":\"Riverbank Media\"},{\"account_id\":\"C013\",\"client_name\":\"Summit Works\"},{\"account_id\":\"C014\",\"client_name\":\"Thistle Labs\"},{\"account_id\":\"C015\",\"client_name\":\"Union Mobility\"},{\"account_id\":\"C016\",\"client_name\":\"Vale Training\"},{\"account_id\":\"C017\",\"client_name\":\"Willow Events\"},{\"account_id\":\"C018\",\"client_name\":\"Yarrow Textiles\"},{\"account_id\":\"C019\",\"client_name\":\"Ashford Studio\"},{\"account_id\":\"C020\",\"client_name\":\"Birch Housing\"},{\"account_id\":\"C021\",\"client_name\":\"Cobalt Sports\"},{\"account_id\":\"C022\",\"client_name\":\"Dune Publishing\"},{\"account_id\":\"C023\",\"client_name\":\"Elm Manufacturing\"},{\"account_id\":\"C024\",\"client_name\":\"Fable Tourism\"},{\"account_id\":\"C025\",\"client_name\":\"Granite Support\"},{\"account_id\":\"C026\",\"client_name\":\"Hazel Research\"},{\"account_id\":\"C027\",\"client_name\":\"Indigo Retail\"},{\"account_id\":\"C028\",\"client_name\":\"Kestrel Digital\"},{\"account_id\":\"C029\",\"client_name\":\"Linden Partners\"},{\"account_id\":\"C030\",\"client_name\":\"Moss Analytics\"},{\"account_id\":\"C031\",\"client_name\":\"Nimbus Community\"},{\"account_id\":\"C032\",\"client_name\":\"Orchard Skills\"},{\"account_id\":\"C033\",\"client_name\":\"Pebble Energy\"},{\"account_id\":\"C034\",\"client_name\":\"Rowan Infrastructure\"}].map(json=>({json}));"
+      },
+      "position": [
+        300,
+        520
+      ],
+      "id": "61022422-6e15-481d-adbf-939e46bca841"
+    },
+    {
+      "name": "Ensure account slots",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "row",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create review queue').first().json.id }}"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "account_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.account_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "account_id": "={{ $json.account_id }}",
+            "client_name": "={{ $json.client_name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_name",
+              "displayName": "client_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "dryRun": false
+        }
+      },
+      "position": [
+        600,
+        520
+      ],
+      "id": "4ded584b-aeec-4052-8703-56865d3be4a9"
+    },
+    {
+      "name": "Read seeded CRM",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create CRM table').first().json.id }}"
+        },
+        "returnAll": true,
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        }
+      },
+      "position": [
+        900,
+        520
+      ],
+      "id": "80f6abf0-1131-4075-9a83-e11948371620",
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "name": "Capture seeded CRM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{json:{crm:$input.all().map(i=>i.json).filter(r=>r.account_id)}}];"
+      },
+      "position": [
+        1200,
+        520
+      ],
+      "id": "5118bbc0-daa9-430f-8894-02b0e3f1a7b0"
+    },
+    {
+      "name": "Read seeded delivery",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create delivery table').first().json.id }}"
+        },
+        "returnAll": true,
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        }
+      },
+      "position": [
+        1500,
+        520
+      ],
+      "id": "281ad0ee-3a49-4fac-83a3-0bc414f6dff5",
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "name": "Validate seeded inputs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// DATEFIX-01 — replace all JavaScript in Validate and snapshot inputs.\n// Business dates use Europe/London for this fixture; the scheduler timezone is unchanged.\nfunction normalizeSourceDates(crm, delivery, sourceTimezone) {\n  const fail = message => { throw new Error('INPUT_VALIDATION: DATEFIX-01: ' + message); };\n  if (!Array.isArray(crm) || !Array.isArray(delivery)) fail('both connected sources must be arrays');\n  let formatter;\n  try {\n    formatter = new Intl.DateTimeFormat('en-GB', {\n      timeZone: sourceTimezone, calendar: 'gregory', numberingSystem: 'latn',\n      year: 'numeric', month: '2-digit', day: '2-digit',\n      hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',\n    });\n  } catch { fail('unsupported source calendar timezone: ' + sourceTimezone); }\n  const conversions = [];\n  const normalize = (raw, source, accountId, field, optional) => {\n    const blank = raw === null || raw === undefined || (typeof raw === 'string' && raw.trim() === '');\n    let normalized, representation;\n    if (blank) {\n      if (!optional) fail(`${source} ${accountId}: missing ${field}`);\n      normalized = null;\n      representation = 'missing_optional';\n    } else {\n      if (typeof raw !== 'string') fail(`${source} ${accountId}: ${field} must be an ISO date string`);\n      if (/^\\d{4}-\\d{2}-\\d{2}$/.test(raw)) {\n        const check = new Date(raw + 'T00:00:00.000Z');\n        if (Number.isNaN(check.getTime()) || check.toISOString().slice(0,10) !== raw) {\n          fail(`${source} ${accountId}: invalid calendar date in ${field}`);\n        }\n        normalized = raw;\n        representation = 'date_only';\n      } else {\n        if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(raw)) {\n          fail(`${source} ${accountId}: ${field} must be YYYY-MM-DD or a UTC ISO timestamp`);\n        }\n        const instant = new Date(raw);\n        if (Number.isNaN(instant.getTime()) || instant.toISOString().slice(0,19) !== raw.slice(0,19)) {\n          fail(`${source} ${accountId}: invalid timestamp in ${field}`);\n        }\n        const parts = Object.fromEntries(formatter.formatToParts(instant).map(p => [p.type,p.value]));\n        if (parts.hour !== '00' || parts.minute !== '00' || parts.second !== '00' || instant.getUTCMilliseconds() !== 0) {\n          fail(`${source} ${accountId}: ${field} is not midnight in ${sourceTimezone}; inspect source date encoding`);\n        }\n        normalized = `${parts.year.padStart(4,'0')}-${parts.month}-${parts.day}`;\n        representation = 'timestamp_at_source_midnight';\n      }\n    }\n    conversions.push({source,account_id:accountId,field,original_value:raw ?? null,normalized_date:normalized,representation,utc_date_changed:representation === 'timestamp_at_source_midnight' && normalized !== raw.slice(0,10)});\n    return normalized;\n  };\n  const convertRows = (rows, source, fields) => rows.map(row => {\n    if (!row || typeof row !== 'object' || Array.isArray(row)) fail(`${source}: invalid row`);\n    const converted = {...row};\n    for (const field of fields) converted[field] = normalize(row[field],source,row.account_id || 'unknown',field,field === 'health_updated_date');\n    return converted;\n  });\n  const normalizedCrm = convertRows(crm,'crm',['review_date','last_interaction_date','renewal_date','health_updated_date']);\n  const normalizedDelivery = convertRows(delivery,'delivery',['review_date','milestone_date']);\n  return {\n    crm: normalizedCrm, delivery: normalizedDelivery,\n    evidence: {\n      patch_id: 'DATEFIX-01', source_calendar_timezone: sourceTimezone,\n      policy: 'Preserve valid date-only strings; decode UTC timestamps only when they represent midnight in the configured source calendar timezone; reject unexpected times. Raw read-node snapshots remain unchanged.',\n      timezone_basis: 'Prototype policy checked against all original CSV dates; workspace import timezone has not been inspected.',\n      date_field_count: conversions.length,\n      nonblank_date_count: conversions.filter(c => c.normalized_date !== null).length,\n      utc_date_change_count: conversions.filter(c => c.utc_date_changed).length,\n      conversions,\n    },\n  };\n}\n\nfunction validateInputs(crm, delivery, expectedCount) {\n  const fail = message => { throw new Error('INPUT_VALIDATION: ' + message); };\n  const blank = value => value === null || value === undefined || String(value).trim() === '';\n  const text = (row, key) => {\n    if (blank(row[key])) fail(`${row.account_id || 'unknown'}: missing ${key}`);\n    if (typeof row[key] !== 'string') fail(`${row.account_id || 'unknown'}: ${key} must be text`);\n    return row[key].trim();\n  };\n  const integer = (row, key, nullable = false) => {\n    if (blank(row[key])) {\n      if (nullable) return null;\n      fail(`${row.account_id}: missing ${key}`);\n    }\n    if (!['string', 'number'].includes(typeof row[key])) fail(`${row.account_id}: invalid ${key}`);\n    const n = Number(row[key]);\n    if (!Number.isInteger(n) || n < 0) fail(`${row.account_id}: ${key} must be a non-negative integer`);\n    return n;\n  };\n  const date = (row, key, nullable = false) => {\n    if (blank(row[key])) {\n      if (nullable) return null;\n      fail(`${row.account_id}: missing ${key}`);\n    }\n    const raw = String(row[key]);\n    if (!/^\\d{4}-\\d{2}-\\d{2}(?:T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z)?$/.test(raw)) fail(`${row.account_id}: invalid ISO date in ${key}`);\n    const day = raw.slice(0, 10);\n    const parsed = new Date(day + 'T00:00:00.000Z');\n    if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== day) fail(`${row.account_id}: invalid calendar date in ${key}`);\n    return day;\n  };\n  if (!Array.isArray(crm) || crm.length !== expectedCount) fail(`expected ${expectedCount} CRM rows; found ${crm?.length ?? 'no array'}`);\n  if (!Array.isArray(delivery) || delivery.length !== expectedCount) fail(`expected ${expectedCount} delivery rows; found ${delivery?.length ?? 'no array'}`);\n  const crmIds = new Set();\n  const deliveryById = new Map();\n  for (const row of delivery) {\n    const id = text(row, 'account_id');\n    if (deliveryById.has(id)) fail(`duplicate delivery account ${id}`);\n    const d = {account_id:id, review_date:date(row,'review_date'), delivery_status:text(row,'delivery_status'), project_name:text(row,'project_name'), recent_milestone:text(row,'recent_milestone'), milestone_date:date(row,'milestone_date'), delivery_note:text(row,'delivery_note')};\n    if (!['on_track','at_risk','blocked'].includes(d.delivery_status)) fail(`${id}: invalid delivery_status`);\n    if (d.milestone_date > d.review_date) fail(`${id}: milestone_date is after review_date`);\n    deliveryById.set(id, d);\n  }\n  const accounts = crm.map(row => {\n    const id = text(row, 'account_id');\n    if (crmIds.has(id)) fail(`duplicate CRM account ${id}`);\n    crmIds.add(id);\n    const d = deliveryById.get(id);\n    if (!d) fail(`missing delivery match for ${id}`);\n    const c = {account_id:id};\n    for (const key of ['client_name','account_manager','manager_name','client_contact','last_interaction_type','open_issue_severity','issue_summary','relationship_note']) c[key] = text(row,key);\n    for (const key of ['review_date','last_interaction_date','renewal_date']) c[key] = date(row,key);\n    c.health_updated_date = date(row,'health_updated_date',true);\n    for (const key of ['interactions_count','open_issue_count','oldest_open_issue_days']) c[key] = integer(row,key);\n    c.health_score = integer(row,'health_score',true);\n    if (c.health_score !== null && (c.health_score < 1 || c.health_score > 5)) fail(`${id}: health_score must be 1–5 or blank`);\n    if (!['none','low','medium','high','critical'].includes(c.open_issue_severity)) fail(`${id}: invalid open_issue_severity`);\n    if (c.open_issue_count === 0 && (c.open_issue_severity !== 'none' || c.oldest_open_issue_days !== 0)) fail(`${id}: contradictory issue fields`);\n    if (c.open_issue_count > 0 && c.open_issue_severity === 'none') fail(`${id}: open issues require a severity`);\n    if (c.review_date !== d.review_date) fail(`${id}: CRM and delivery review dates differ`);\n    if (c.last_interaction_date > c.review_date || (c.health_updated_date && c.health_updated_date > c.review_date)) fail(`${id}: activity or health update is after review_date`);\n    if (c.interactions_count === 0 && c.last_interaction_date >= c.review_date.slice(0,7)+'-01') fail(`${id}: zero interactions contradict last interaction date`);\n    return {...c,...d};\n  });\n  if (new Set(accounts.map(a=>a.review_date)).size !== 1) fail('accounts have different review dates');\n  return accounts;\n}\n\nconst crm=$('Capture seeded CRM').first().json.crm;const delivery=$input.all().map(i=>i.json).filter(r=>r.account_id);const n=normalizeSourceDates(crm,delivery,'Europe/London');const accounts=validateInputs(n.crm,n.delivery,34);return [{json:{accounts,crm_count:crm.length,delivery_count:delivery.length}}];"
+      },
+      "position": [
+        0,
+        780
+      ],
+      "id": "912b6cae-bb15-4779-82ed-f45ca025b648"
+    },
+    {
+      "name": "Read seeded queue",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create review queue').first().json.id }}"
+        },
+        "returnAll": true,
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": []
+        }
+      },
+      "position": [
+        300,
+        780
+      ],
+      "id": "195c67c7-da5b-4a99-884c-ba71fa788e89",
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "name": "Build setup evidence",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const input=$('Validate seeded inputs').first().json;const rows=$input.all().map(i=>i.json).filter(r=>r.account_id);if(rows.length!==34||new Set(rows.map(r=>r.account_id)).size!==34)throw new Error('SETUP: expected 34 unique queue slots');for(const a of input.accounts)if(!rows.some(r=>r.account_id===a.account_id&&r.client_name===a.client_name))throw new Error('SETUP: queue mismatch '+a.account_id);\nconst config={crm_table_id:$('Create CRM table').first().json.id,delivery_table_id:$('Create delivery table').first().json.id,review_queue_table_id:$('Create review queue').first().json.id,audit_table_id:$('Create audit table').first().json.id,expected_account_count:34,batch_size:8,fixture_version:'portfolio-34-v1'};\nreturn [{json:{event_type:'SETUP_COMPLETED',run_id:'SETUP-'+$execution.id,execution_id:String($execution.id),account_id:'',version_token:'',recorded_at:new Date().toISOString(),stage:'setup',message:'34 fictional accounts loaded; automatic AI processing remains to be tested.',payload_json:JSON.stringify({storage_config:config,crm_count:input.crm_count,delivery_count:input.delivery_count,queue_count:rows.length})}}];"
+      },
+      "position": [
+        600,
+        780
+      ],
+      "id": "96af4577-5a9c-443f-974b-79dba8529bec"
+    },
+    {
+      "name": "Save setup evidence",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Create audit table').first().json.id }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "event_type": "={{ $json.event_type }}",
+            "run_id": "={{ $json.run_id }}",
+            "execution_id": "={{ $json.execution_id }}",
+            "account_id": "={{ $json.account_id }}",
+            "version_token": "={{ $json.version_token }}",
+            "recorded_at": "={{ $json.recorded_at }}",
+            "stage": "={{ $json.stage }}",
+            "message": "={{ $json.message }}",
+            "payload_json": "={{ $json.payload_json }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "run_id",
+              "displayName": "run_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "account_id",
+              "displayName": "account_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "version_token",
+              "displayName": "version_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recorded_at",
+              "displayName": "recorded_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload_json",
+              "displayName": "payload_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "optimizeBulk": false
+        }
+      },
+      "position": [
+        900,
+        780
+      ],
+      "id": "36ada575-1331-4f4f-87b6-8f917360ae32"
+    },
+    {
+      "name": "Setup complete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const e=$input.first().json,p=JSON.parse(e.payload_json);return [{json:{status:'SETUP_COMPLETE',execution_id:String($execution.id),crm_count:p.crm_count,delivery_count:p.delivery_count,queue_count:p.queue_count,storage_config:JSON.stringify(p.storage_config),saved_audit_row_id:e.id,automatic_execution_verified:false,ai_processing_performed:false}}];"
+      },
+      "position": [
+        1200,
+        780
+      ],
+      "id": "fad242e4-0c2a-467f-8c74-d6389b0c84c5"
+    },
+    {
+      "name": "Setup instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "parameters": {
+        "content": "## One-time setup for an independent portfolio\nRun this workflow manually once. It creates four new ClientReview_Demo34 tables and loads 34 fictional accounts. Original CFTE tables are not used.\n\nBusiness calendar dates are stored as strings to preserve YYYY-MM-DD. Copy storage_config from Setup complete into Run settings and Reviewer settings in the two other workflows.\n\nKeep Setup unpublished. A repeated setup restores fixture inputs but preserves existing draft/review fields. Setup failures stop visibly in Executions. Setup itself is not evidence of automatic AI processing.",
+        "height": 380,
+        "width": 650
+      },
+      "position": [
+        1500,
+        780
+      ],
+      "id": "0c73579e-7249-40c9-9193-96a1f83bdcce"
+    }
+  ],
+  "connections": {
+    "Manual setup": {
+      "main": [
+        [
+          {
+            "node": "Create audit table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create audit table": {
+      "main": [
+        [
+          {
+            "node": "Check audit schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check audit schema": {
+      "main": [
+        [
+          {
+            "node": "Create CRM table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create CRM table": {
+      "main": [
+        [
+          {
+            "node": "Check CRM schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check CRM schema": {
+      "main": [
+        [
+          {
+            "node": "Prepare fictional CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare fictional CRM": {
+      "main": [
+        [
+          {
+            "node": "Load fictional CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load fictional CRM": {
+      "main": [
+        [
+          {
+            "node": "Create delivery table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create delivery table": {
+      "main": [
+        [
+          {
+            "node": "Check delivery schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check delivery schema": {
+      "main": [
+        [
+          {
+            "node": "Prepare fictional delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare fictional delivery": {
+      "main": [
+        [
+          {
+            "node": "Load fictional delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load fictional delivery": {
+      "main": [
+        [
+          {
+            "node": "Create review queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create review queue": {
+      "main": [
+        [
+          {
+            "node": "Check queue schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check queue schema": {
+      "main": [
+        [
+          {
+            "node": "Prepare account slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare account slots": {
+      "main": [
+        [
+          {
+            "node": "Ensure account slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ensure account slots": {
+      "main": [
+        [
+          {
+            "node": "Read seeded CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read seeded CRM": {
+      "main": [
+        [
+          {
+            "node": "Capture seeded CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture seeded CRM": {
+      "main": [
+        [
+          {
+            "node": "Read seeded delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read seeded delivery": {
+      "main": [
+        [
+          {
+            "node": "Validate seeded inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate seeded inputs": {
+      "main": [
+        [
+          {
+            "node": "Read seeded queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read seeded queue": {
+      "main": [
+        [
+          {
+            "node": "Build setup evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build setup evidence": {
+      "main": [
+        [
+          {
+            "node": "Save setup evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save setup evidence": {
+      "main": [
+        [
+          {
+            "node": "Setup complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": true
+  },
+  "tags": []
+}

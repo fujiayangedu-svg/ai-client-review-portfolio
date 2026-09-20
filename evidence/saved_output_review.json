@@ -1,0 +1,122 @@
+{
+  "source": "User-supplied complete queue JSON, supplied alongside screenshot of successful execution 284. This is saved-output inspection, not a new n8n or model execution.",
+  "account_count": 34,
+  "unique_accounts": 34,
+  "source_fact_differences": [],
+  "risk_counts": {
+    "Green": 10,
+    "Amber": 12,
+    "Red": 8,
+    "Review Pending": 4
+  },
+  "approval_counts": {
+    "Awaiting review": 34
+  },
+  "delivery_counts": {
+    "Not ready": 34
+  },
+  "draft_kind_counts": {
+    "none": 10,
+    "amber_email": 12,
+    "red_plan": 8,
+    "health_update": 4
+  },
+  "rule_differences": [],
+  "shape_or_provenance_issues": [],
+  "batches": {
+    "INITIAL-PORTFOLIO34-AUG2026-B01": {
+      "execution_id": "98",
+      "accounts": [
+        "C001",
+        "C002",
+        "C003",
+        "C004",
+        "C005",
+        "C006",
+        "C007",
+        "C008"
+      ],
+      "draft_version": 1,
+      "model": "gpt-5.4-mini-2026-03-17",
+      "response_id": "resp_00749944fcad95be006aae27c5840087d1ad2c24bde866210f"
+    },
+    "RESUME-01-B02": {
+      "execution_id": "234",
+      "accounts": [
+        "C009",
+        "C010",
+        "C011",
+        "C012",
+        "C013",
+        "C014",
+        "C015",
+        "C016"
+      ],
+      "draft_version": 2,
+      "model": "gpt-5.4-mini-2026-03-17",
+      "response_id": "resp_0dbbaec2818a9d04006aae47a5b83887d18ce1bbf651abbe5d"
+    },
+    "RESUME-02-B03": {
+      "execution_id": "270",
+      "accounts": [
+        "C017",
+        "C018",
+        "C019",
+        "C020",
+        "C021",
+        "C022",
+        "C023",
+        "C024"
+      ],
+      "draft_version": 3,
+      "model": "gpt-5.4-mini-2026-03-17",
+      "response_id": "resp_01eae09e82280083006aae5015ab0887d1ac606511b2c70e61"
+    },
+    "INITIAL-PORTFOLIO34-AUG2026-B04": {
+      "execution_id": "272",
+      "accounts": [
+        "C025",
+        "C026",
+        "C027",
+        "C028",
+        "C029",
+        "C030",
+        "C031",
+        "C032"
+      ],
+      "draft_version": 1,
+      "model": "gpt-5.4-mini-2026-03-17",
+      "response_id": "resp_019a66bbdb7ef3a7006aae508e3c2487d18a7ce241f90f1a8b"
+    },
+    "RESUME-02-B05": {
+      "execution_id": "276",
+      "accounts": [
+        "C033",
+        "C034"
+      ],
+      "draft_version": 2,
+      "model": "gpt-5.4-mini-2026-03-17",
+      "response_id": "resp_09589ba407422521006aae517d55f887d1acd45d0a70adb9d4"
+    }
+  },
+  "result": "ALL_34_CURRENT_RECORDS_SAVED_AND_AWAITING_HUMAN_REVIEW",
+  "human_approval_on_portfolio_tables": "At this full-queue snapshot all 34 were unapproved. Subsequently, paired screenshots show C002 GEN-98-C002-V1 approved; no post-approval full queue was collected.",
+  "screenshot": {
+    "execution_id": "284",
+    "displayed_start": "Sep 19, 10:18:20",
+    "result": "Succeeded",
+    "duration_ms": 234,
+    "selected_path": "Scheduled trigger through Select batch; downstream processing did not execute.",
+    "visible_historical_errors": [
+      "AI_VALIDATION: response is not valid JSON [line 14]",
+      "AI_VALIDATION: rubric mismatch for C017 [line 25]"
+    ],
+    "historical_json_error_scope": "Execution list shows a failed run at 10:08:20, followed by success at 10:10:20. Raw failed model response and failure audit for the JSON-format error have not been supplied; do not infer its exact cause or execution ID."
+  },
+  "limitations": [
+    "Current saved classifications agree with the provisional rubric. This is not 34/34 independent model classification accuracy; configurations and attempts differ, and FIX03 supplies policy labels to the model.",
+    "Full prose quality remains a human judgment. C014-C016 contain awkward phrasing or unnecessary internal renewal thresholds; C022-C023 relative date wording is anchored to the fictional assessment date, not a real sending date. None is approved.",
+    "Input snapshots match the 34 fictional fixture records. Live CRM retrieval, real monthly working-day scheduling and sending are outside scope.",
+    "No new failure tests or regeneration are required to complete this portfolio demonstration."
+  ]
+}
